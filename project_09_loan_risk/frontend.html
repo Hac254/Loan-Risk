@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LoanRisk AI - Risk Assessment Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link  rel="stylesheet" href="frontend.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 font-sans text-slate-800 min-h-screen flex flex-col">
+
+    <nav class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-600 p-2 rounded-lg text-white">
+                        <i class="fa-solid fa-shield-halved text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg tracking-tight block">LoanRisk AI</span>
+                        <span class="text-xs text-slate-400 block -mt-1">Credit Decision Core</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-medium text-slate-200">Logged in as: <span class="text-blue-400 font-semibold">{{ user }}</span></p>
+                        <p class="text-xs text-slate-400 capitalize">Role: {{ session.role }}</p>
+                    </div>
+                    <a href="{{ url_for('logout') }}" class="bg-slate-800 hover:bg-rose-900 text-slate-300 hover:text-white px-3 py-1.5 rounded-lg text-sm font-medium transition-colors border border-slate-700">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Exit
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-grow w-full">
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, msg in messages %}
+                <div class="mb-6 p-4 rounded-xl border flex items-center gap-3 {% if category == 'danger' %} bg-rose-50 text-rose-800 border-rose-200 {% else %} bg-emerald-50 text-emerald-800 border-emerald-200 {% endif %}">
+                    <i class="fa-solid {% if category == 'danger' %} fa-circle-exclamation {% else %} fa-circle-check {% endif %} text-lg"></i>
+                    <p class="text-sm font-medium">{{ msg }}</p>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <div class="grid grid-cols-1 gap-8">
+            
+            <section class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                <div class="bg-slate-900 px-6 py-4 border-b border-slate-200 flex justify-between items-center">
+                    <div class="flex items-center gap-2 text-white">
+                        <i class="fa-solid fa-file-invoice-dollar text-xl text-blue-500"></i>
+                        <h2 class="text-lg font-bold">New Applicant Assessment Matrix</h2>
+                    </div>
+                    <span class="bg-blue-900/50 text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider border border-blue-800/30">Data Entry Mode</span>
+                </div>
+                
+                <form action="{{ url_for('predict') }}" method="POST" class="p-6 space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Applicant Age</label>
+                            <input type="number" name="age" min="18" max="75" required placeholder="Years"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Gender Context</label>
+                            <select name="gender" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                                <option value="M">Male (M)</option>
+                                <option value="F">Female (F)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Employment Status</label>
+                            <select name="employment_status" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                                <option value="Employed">Employed (Salaried)</option>
+                                <option value="Self-Employed">Self-Employed (MSME)</option>
+                                <option value="Unemployed">Unemployed</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Monthly Income (KSh)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400 text-sm font-semibold">KSh</span>
+                                <input type="number" name="monthly_income" required placeholder="e.g., 85000"
+                                    class="w-full pl-12 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Requested Capital (KSh)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400 text-sm font-semibold">KSh</span>
+                                <input type="number" name="loan_amount" required placeholder="e.g., 450000"
+                                    class="w-full pl-12 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Amortization Period</label>
+                            <input type="number" name="loan_term_months" required placeholder="Months"
+                                class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Credit CRB Assessment</label>
+                            <select name="credit_history" required class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                                <option value="Good">Good Standing (Clear)</option>
+                                <option value="Poor">Poor History (Listing Risk)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Existing Liabilities (KSh)</label>
+                            <div class="relative">
+                                <span class="absolute left-3 top-2 text-slate-400 text-sm font-semibold">KSh</span>
+                                <input type="number" name="existing_debts" required placeholder="e.g., 15000"
+                                    class="w-full pl-12 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:bg-white focus:outline-none transition-all">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-xl shadow-sm transition-all transform active:scale-[0.99] flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Run Supervised Machine Learning Evaluation
+                    </button>
+                </form>
+            </section>
+
+            {% if session.role == 'admin' %}
+            <section class="space-y-8">
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900">Statistical Performance Dashboard</h2>
+                        <p class="text-slate-500 text-sm">Supervised Learning algorithm models accuracy comparison profiles.</p>
+                    </div>
+                    <a href="{{ url_for('download_data') }}" class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold px-4 py-2.5 rounded-xl transition-all shadow-sm flex items-center gap-2">
+                        <i class="fa-solid fa-file-arrow-down"></i> Export Dataset CSV Base
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                            <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-chart-line text-blue-500"></i> K-Nearest Neighbors Classifier</span>
+                            <span class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2 py-0.5 rounded-full">Accuracy: {{ (metrics['KNN']['accuracy']*100)|round(2) }}%</span>
+                        </div>
+                        <div class="p-5">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <thead>
+                                    <tr class="text-slate-400 text-xs border-b border-slate-100">
+                                        <th class="pb-2">Target Class</th>
+                                        <th class="pb-2 text-center">Precision</th>
+                                        <th class="pb-2 text-center">Recall</th>
+                                        <th class="pb-2 text-center">F1-Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    <tr>
+                                        <td class="py-3 font-medium text-slate-600">Non-Default (0)</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['KNN']['report']['0']['precision']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['KNN']['report']['0']['recall']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['KNN']['report']['0']['f1-score']|round(2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 font-medium text-slate-600">Default (1)</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['KNN']['report']['1']['precision']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['KNN']['report']['1']['recall']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['KNN']['report']['1']['f1-score']|round(2) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+                        <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                            <span class="font-bold text-slate-700 flex items-center gap-2"><i class="fa-solid fa-bezier-curve text-amber-500"></i> Gaussian Naïve Bayes</span>
+                            <span class="text-xs bg-amber-100 text-amber-800 font-extrabold px-2 py-0.5 rounded-full">Accuracy: {{ (metrics['Naïve Bayes']['accuracy']*100)|round(2) }}%</span>
+                        </div>
+                        <div class="p-5">
+                            <table class="w-full text-sm text-left border-collapse">
+                                <thead>
+                                    <tr class="text-slate-400 text-xs border-b border-slate-100">
+                                        <th class="pb-2">Target Class</th>
+                                        <th class="pb-2 text-center">Precision</th>
+                                        <th class="pb-2 text-center">Recall</th>
+                                        <th class="pb-2 text-center">F1-Score</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-50">
+                                    <tr>
+                                        <td class="py-3 font-medium text-slate-600">Non-Default (0)</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['Naïve Bayes']['report']['0']['precision']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['Naïve Bayes']['report']['0']['recall']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['Naïve Bayes']['report']['0']['f1-score']|round(2) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-3 font-medium text-slate-600">Default (1)</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['Naïve Bayes']['report']['1']['precision']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['Naïve Bayes']['report']['1']['recall']|round(2) }}</td>
+                                        <td class="py-3 text-center text-slate-500">{{ metrics['Naïve Bayes']['report']['1']['f1-score']|round(2) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-images text-blue-600"></i> Model Training Insights & Heatmaps
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">1. Co-dependency Analysis Matrices</p>
+                            <img src="{{ url_for('static', filename='visualisations/correlation_heatmap.png') }}" class="w-full h-auto rounded-xl border border-slate-100" alt="Correlation Heatmap">
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">2. Neighbors Cross-Validation Hyperparameter Tuning</p>
+                            <img src="{{ url_for('static', filename='visualisations/knn_k_tuning.png') }}" class="w-full h-auto rounded-xl border border-slate-100" alt="KNN Tuning Curve">
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">3. Out-of-Sample Score Variance Summary</p>
+                            <img src="{{ url_for('static', filename='visualisations/model_comparison.png') }}" class="w-full h-auto rounded-xl border border-slate-100" alt="Model Accuracy Comparison">
+                        </div>
+                        <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                            <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">4. Leverage Allocation Cluster Distribution Mapping</p>
+                            <img src="{{ url_for('static', filename='visualisations/risk_distribution.png') }}" class="w-full h-auto rounded-xl border border-slate-100" alt="Risk Feature Scatter">
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+            {% endif %}
+
+        </div>
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-4 border-t border-slate-800 mt-12">
+        <div class="max-w-7xl mx-auto px-4 text-center sm:flex sm:justify-between sm:items-center">
+            <p>&copy; 2026 Core Risk Systems Academic Inc. Built for Supervised Financial Asset Classification Modules.</p>
+            <p class="mt-1 sm:mt-0 text-slate-500">Framework Focus: Decision Theory & Microeconomic Modeling.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

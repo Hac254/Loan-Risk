@@ -1,0 +1,111 @@
+/* ==========================================================================
+   LoanRisk AI Master Stylesheet — Complete Unified UI Blueprint
+   ========================================================================== */
+
+/* 1. Global Custom Theme Tokens & Configuration Variable Blocks */
+:root {
+    --primary-brand: #2563eb;        /* Blue 600 */
+    --primary-brand-hover: #1d4ed8;  /* Blue 700 */
+    --slate-bg-dark: #0f172a;        /* Slate 900 */
+    --slate-bg-light: #f8fafc;       /* Slate 50 */
+    --slate-text-main: #1e293b;      /* Slate 800 */
+    --slate-text-muted: #64748b;     /* Slate 500 */
+    --border-color: #e2e8f0;         /* Slate 200 */
+    --metric-success: #10b981;       /* Emerald 500 */
+    --metric-danger: #f43f5e;        /* Rose 500 */
+    --animation-smooth: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 2. Micro-Typography Reset & Global Layout Optimizations */
+html, body {
+    background-color: var(--slate-bg-light);
+    color: var(--slate-text-main);
+    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+}
+
+/* 3. Smooth Interactive Form Controls & Active States */
+input, select, textarea {
+    transition: var(--animation-smooth) !important;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-brand) !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15) !important;
+    background-color: #ffffff !important;
+    outline: none !important;
+}
+
+/* 4. Submission & Interaction Layout Elements */
+button, .btn-action {
+    transition: var(--animation-smooth) !important;
+}
+
+button:active, .btn-action:active {
+    transform: scale(0.985);
+}
+
+/* 5. Visualization Map & Chart Wrapper Hover Effects */
+.insight-image-container img, 
+img[alt*="Comparison"], 
+img[alt*="Matrix"], 
+img[alt*="Distribution"] {
+    transition: var(--animation-smooth);
+}
+
+.insight-image-container img:hover,
+img[alt*="Comparison"]:hover, 
+img[alt*="Matrix"]:hover, 
+img[alt*="Distribution"]:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 20px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.08);
+}
+
+/* 6. Dynamic Evaluation Matrix & Data Tables Styling */
+table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+table tbody tr:hover {
+    background-color: rgba(241, 245, 249, 0.75);
+}
+
+/* 7. Platform Wide Custom Responsive Viewport Scrollbars */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--slate-bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* 8. Dedicated Print Document Generator Media Layouts (For Credit Auditing) */
+@media print {
+    nav, footer, button, .no-print {
+        display: none !important;
+    }
+    body {
+        background: #ffffff !important;
+        color: #000000 !important;
+    }
+    .bg-white {
+        border: 1px solid var(--border-color) !important;
+        box-shadow: none !important;
+    }
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
